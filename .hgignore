@@ -1,6 +1,3 @@
 syntax: glob
 .DS_Store
 bin/
-.classpath
-.project
-.settings/
