@@ -66,7 +66,10 @@ public class CodebookEngine {
         for (int i = 0; i < t.getNumChildren(); i++) {
             TreeElement t1 = t.getChildAt(i);
             CodebookEntry ce = new CodebookEntry();
-            ce.setVariable(t1.getRef().toString(false));
+            String ref= t1.getRef().toString(false);
+            
+            // get rid of the leading path
+            ce.setVariable(ref.substring(ref.lastIndexOf("/")+1));
 
             QuestionDef qd = FormDef.findQuestionByRef(t1.getRef(), fd);
 
