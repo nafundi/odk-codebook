@@ -49,7 +49,7 @@ public class PropertyManager implements IPropertyManager {
         return "Property Manager";
     }
 
-    public PropertyManager(int unsued) {
+    public PropertyManager(int unused) {
         mProperties = new HashMap<String, String>();
         mProperties.put(DEVICE_ID_PROPERTY, "noid");
         mProperties.put(OR_DEVICE_ID_PROPERTY, "noORid");
