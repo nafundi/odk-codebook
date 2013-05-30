@@ -14,12 +14,12 @@
 
 package com.nafundi.taskforce.codebook.ui;
 
+import org.javarosa.core.services.IPropertyManager;
+import org.javarosa.core.services.properties.IPropertyRules;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
-
-import org.javarosa.core.services.IPropertyManager;
-import org.javarosa.core.services.properties.IPropertyRules;
 
 /**
  * Used to return device properties to JavaRosa
@@ -32,11 +32,11 @@ public class PropertyManager implements IPropertyManager {
     private HashMap<String, String> mProperties;
 
     public final static String DEVICE_ID_PROPERTY = "deviceid"; // imei
-    private final static String SUBSCRIBER_ID_PROPERTY = "subscriberid"; // imsi
-    private final static String SIM_SERIAL_PROPERTY = "simserial";
-    private final static String PHONE_NUMBER_PROPERTY = "phonenumber";
-    private final static String USERNAME = "username";
-    private final static String EMAIL = "email";
+    public final static String SUBSCRIBER_ID_PROPERTY = "subscriberid"; // imsi
+    public final static String SIM_SERIAL_PROPERTY = "simserial";
+    public final static String PHONE_NUMBER_PROPERTY = "phonenumber";
+    public final static String USERNAME = "username";
+    public final static String EMAIL = "email";
 
     public final static String OR_DEVICE_ID_PROPERTY = "uri:deviceid"; // imei
     public final static String OR_SUBSCRIBER_ID_PROPERTY = "uri:subscriberid"; // imsi
@@ -49,7 +49,7 @@ public class PropertyManager implements IPropertyManager {
         return "Property Manager";
     }
 
-    public PropertyManager(int asdf) {
+    public PropertyManager(int unsued) {
         mProperties = new HashMap<String, String>();
         mProperties.put(DEVICE_ID_PROPERTY, "noid");
         mProperties.put(OR_DEVICE_ID_PROPERTY, "noORid");
