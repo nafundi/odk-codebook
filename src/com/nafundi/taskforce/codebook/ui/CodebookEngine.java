@@ -1,12 +1,10 @@
 
 package com.nafundi.taskforce.codebook.ui;
 
-import org.javarosa.core.model.Constants;
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.QuestionDef;
-import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.*;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.util.XFormUtils;
@@ -20,11 +18,7 @@ import java.util.Vector;
 
 public class CodebookEngine {
 
-    private HashMap<String,String> metadata;
-    public static String FILENAME = "filename";
-    public static String LANGUAGE = "language";
-
-    public ArrayList<CodebookEntry> loadForm(String filepath) {
+    public HashMap<String, ArrayList<CodebookEntry>> loadForm(String filepath) {
         new XFormsModule().registerModule();
         // needed to override rms property manager
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(5));
@@ -58,29 +52,30 @@ public class CodebookEngine {
         fd.setEvaluationContext(new EvaluationContext(null));
         fd.initialize(true);
 
-        TreeElement te = fd.getInstance().getRoot();
-
-        ArrayList<CodebookEntry> entries = new ArrayList<CodebookEntry>();
-        populateEntries(te, fd, entries);
-
-        String filenameWithExtension = xml.getName();
-        String filename = filenameWithExtension.substring(0,filenameWithExtension.lastIndexOf('.'));
-        metadata = new HashMap<String,String>();
-        metadata.put(FILENAME,filename);
-        metadata.put(LANGUAGE,fd.getLocalizer().getLocale());
+        HashMap<String, ArrayList<CodebookEntry>> entries = new HashMap<String, ArrayList<CodebookEntry>>();
+        String[] languages = fd.getLocalizer().getAvailableLocales();
+        for (String language : languages) {
+            fd.getLocalizer().setLocale(language);
+            ArrayList<CodebookEntry> entry = new ArrayList<CodebookEntry>();
+            populateEntries(fd.getInstance().getRoot(), fd, entry);
+            entries.put(language, entry);
+        }
 
         return entries;
 
     }
 
     private void populateEntries(TreeElement t, FormDef fd, ArrayList<CodebookEntry> entries) {
+
+        Localizer localizer = fd.getLocalizer();
+
         for (int i = 0; i < t.getNumChildren(); i++) {
             TreeElement t1 = t.getChildAt(i);
             CodebookEntry ce = new CodebookEntry();
-            String ref= t1.getRef().toString(false);
-            
+            String ref = t1.getRef().toString(false);
+
             // get rid of the leading path
-            ce.setVariable(ref.substring(ref.lastIndexOf("/")+1));
+            ce.setVariable(ref.substring(ref.lastIndexOf("/") + 1));
 
             QuestionDef qd = FormDef.findQuestionByRef(t1.getRef(), fd);
 
@@ -89,7 +84,7 @@ public class CodebookEngine {
                 StringBuilder values = new StringBuilder();
 
                 // add question text
-                questions.append(qd.getLabelInnerText() + "\n");
+                questions.append(getLocalizedLabel(qd.getTextID(),qd.getLabelInnerText(), localizer) + "\n");
 
                 // populate questions and values appropriately
                 switch (qd.getControlType()) {
@@ -135,7 +130,7 @@ public class CodebookEngine {
                         values.append("\n");
                         Vector<SelectChoice> choices = qd.getChoices();
                         for (SelectChoice choice : choices) {
-                            questions.append("\t"+ choice.getLabelInnerText() + "\n");
+                            questions.append("\t" + getLocalizedLabel(choice.getTextID(),choice.getLabelInnerText(), localizer) + "\n");
                             values.append(choice.getValue() + "\n");
                         }
                         break;
@@ -190,8 +185,66 @@ public class CodebookEngine {
 
     }
 
-    public HashMap<String, String> getMetadata() {
-        return metadata;
+    public String getLocalizedLabel(String textId, String labelText, Localizer l) {
+
+        if (textId == null || textId == "") return labelText;
+
+        //otherwise check for 'long' form of the textID, then for the default form and return
+        String returnText;
+        returnText = getIText(textId, "long", l);
+        if (returnText == null) returnText = getIText(textId, null, l);
+
+        return returnText;
     }
+
+
+//
+//
+//    public String getQuestionText(QuestionDef qd, Localizer localizer) {
+//
+//        String tid = qd.getTextID();
+//        if(tid == null || tid == "") return qd.getLabelInnerText();
+//
+//        //otherwise check for 'long' form of the textID, then for the default form and return
+//        String returnText;
+//        returnText = getIText(tid, "long", localizer);
+//        if (returnText == null) returnText = getIText(tid, null, localizer);
+//
+//        return returnText;
+//    }
+//
+//
+//    public String getSelectItemText(Selection s, Localizer localizer){
+//
+//        //check for the null id case and return labelInnerText if it is so.
+//        String tid = s.choice.getTextID();
+//        if(tid == null || tid == "") return s.choice.getLabelInnerText();
+//
+//        //otherwise check for 'long' form of the textID, then for the default form and return
+//        String returnText;
+//        returnText = getIText(tid, "long", localizer);
+//        if(returnText == null) returnText = getIText(tid,null,localizer);
+//
+//        return returnText;
+//    }
+//
+
+    protected String getIText(String textID, String form, Localizer localizer) {
+        String returnText = null;
+        if (textID == null || textID.equals("")) return null;
+        if (form != null && !form.equals("")) {
+            try {
+                returnText = localizer.getRawText(localizer.getLocale(), textID + ";" + form);
+            } catch (NullPointerException npe) {
+            }
+        } else {
+            try {
+                returnText = localizer.getRawText(localizer.getLocale(), textID);
+            } catch (NullPointerException npe) {
+            }
+        }
+        return returnText;
+    }
+
 }
 

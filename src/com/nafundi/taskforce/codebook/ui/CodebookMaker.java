@@ -12,7 +12,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static java.util.Arrays.asList;
 
@@ -21,14 +20,16 @@ import static java.util.Arrays.asList;
  */
 public class CodebookMaker {
 
-    // TODO: this is just for debugging
-    private String basePath = System.getProperty("user.home") + File.separator + "Desktop" + File.separator;
     private ArrayList<CodebookEntry> codebookEntries;
-    private HashMap<String, String> codebookMetadata;
+    private String locale;
+    private String inputFilename;
+    private String outputFolderPath;
 
-    public CodebookMaker(ArrayList<CodebookEntry> codebookEntries, HashMap<String, String> codebookMetadata) {
+    public CodebookMaker(ArrayList<CodebookEntry> codebookEntries, String locale, String inputFilename, String outputFolderPath) {
         this.codebookEntries = codebookEntries;
-        this.codebookMetadata = codebookMetadata;
+        this.locale = locale;
+        this.inputFilename = inputFilename;
+        this.outputFolderPath = outputFolderPath;
     }
 
     public void makeCodebook() {
@@ -38,13 +39,14 @@ public class CodebookMaker {
         new Html(writer) {{
 
             head();
+            meta().charset("utf-8").end();
             // bootstrap css with only headings, body type, and tables
             // also have custom tr.gray tag to fix bug in html to pdf export
             style().type("text/css").text(".clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:\"\";line-height:0;}\n" +
                     ".clearfix:after{clear:both;}\n" +
                     ".hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}\n" +
                     ".input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-                    "body{margin:0;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
+                    "body{margin:0;font-family:\"Lucida Sans Unicode\",Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
                     "a{color:#0088cc;text-decoration:none;}\n" +
                     "a:hover,a:focus{color:#005580;text-decoration:underline;}\n" +
                     ".img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;}\n" +
@@ -149,7 +151,7 @@ public class CodebookMaker {
                     ".table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}\n").end();
             end();
             body();
-            h2().text(codebookMetadata.get(CodebookEngine.FILENAME) + " (" + codebookMetadata.get(CodebookEngine.LANGUAGE) + ")").end();
+            h2().text(inputFilename + " (" + locale + ")").end();
             table().classAttr("table table-striped table-bordered");
             thead().tr();
             for (String header : asList("Variable Name", "Question Text", "Saved Value")) {
@@ -204,10 +206,11 @@ public class CodebookMaker {
         renderer.setDocument(document, null);
         renderer.layout();
 
+        // TODO: asian characters are in html but don't show up in pdf
         // write out document as pdf
         OutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(basePath + codebookMetadata.get(CodebookEngine.FILENAME) + " (" + codebookMetadata.get(CodebookEngine.LANGUAGE) + ").pdf");
+            outputStream = new FileOutputStream(outputFolderPath + File.separator + inputFilename + " (" + locale + ").pdf");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
