@@ -1,7 +1,10 @@
 
 package com.nafundi.taskforce.codebook.ui;
 
-import org.javarosa.core.model.*;
+import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
@@ -9,6 +12,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.util.XFormUtils;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,9 +20,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
-public class CodebookEngine {
+public class CodebookEngine extends SwingWorker {
 
-    public HashMap<String, ArrayList<CodebookEntry>> loadForm(String filepath) {
+    private String filepath;
+
+    public CodebookEngine(String filepath) {
+        this.filepath = filepath;
+    }
+
+    public HashMap<String, ArrayList<CodebookEntry>> doInBackground() {
         new XFormsModule().registerModule();
         // needed to override rms property manager
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(5));
@@ -84,7 +94,7 @@ public class CodebookEngine {
                 StringBuilder values = new StringBuilder();
 
                 // add question text
-                questions.append(getLocalizedLabel(qd.getTextID(),qd.getLabelInnerText(), localizer) + "\n");
+                questions.append(getLocalizedLabel(qd.getTextID(), qd.getLabelInnerText(), localizer) + "<br/>");
 
                 // populate questions and values appropriately
                 switch (qd.getControlType()) {
@@ -127,12 +137,14 @@ public class CodebookEngine {
                         break;
                     case Constants.CONTROL_SELECT_ONE:
                     case Constants.CONTROL_SELECT_MULTI:
-                        values.append("\n");
+                        values.append("<br/>");
+                        questions.append("<ul>");
                         Vector<SelectChoice> choices = qd.getChoices();
                         for (SelectChoice choice : choices) {
-                            questions.append("\t" + getLocalizedLabel(choice.getTextID(),choice.getLabelInnerText(), localizer) + "\n");
-                            values.append(choice.getValue() + "\n");
+                            questions.append("<li>" + getLocalizedLabel(choice.getTextID(), choice.getLabelInnerText(), localizer) + "</li>");
+                            values.append(choice.getValue() + "<br/>");
                         }
+                        questions.append("</ul>");
                         break;
                     default:
                         break;
@@ -185,7 +197,8 @@ public class CodebookEngine {
 
     }
 
-    public String getLocalizedLabel(String textId, String labelText, Localizer l) {
+    // TODO multimedia don't work
+    private String getLocalizedLabel(String textId, String labelText, Localizer l) {
 
         if (textId == null || textId == "") return labelText;
 
@@ -197,39 +210,7 @@ public class CodebookEngine {
         return returnText;
     }
 
-
-//
-//
-//    public String getQuestionText(QuestionDef qd, Localizer localizer) {
-//
-//        String tid = qd.getTextID();
-//        if(tid == null || tid == "") return qd.getLabelInnerText();
-//
-//        //otherwise check for 'long' form of the textID, then for the default form and return
-//        String returnText;
-//        returnText = getIText(tid, "long", localizer);
-//        if (returnText == null) returnText = getIText(tid, null, localizer);
-//
-//        return returnText;
-//    }
-//
-//
-//    public String getSelectItemText(Selection s, Localizer localizer){
-//
-//        //check for the null id case and return labelInnerText if it is so.
-//        String tid = s.choice.getTextID();
-//        if(tid == null || tid == "") return s.choice.getLabelInnerText();
-//
-//        //otherwise check for 'long' form of the textID, then for the default form and return
-//        String returnText;
-//        returnText = getIText(tid, "long", localizer);
-//        if(returnText == null) returnText = getIText(tid,null,localizer);
-//
-//        return returnText;
-//    }
-//
-
-    protected String getIText(String textID, String form, Localizer localizer) {
+    private String getIText(String textID, String form, Localizer localizer) {
         String returnText = null;
         if (textID == null || textID.equals("")) return null;
         if (form != null && !form.equals("")) {

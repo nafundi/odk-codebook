@@ -16,9 +16,8 @@ public class Main {
 
     public static String APP_NAME = "Task Force Codebook";
     private JFrame frame;
-    private JFormattedTextField filePath;
     private JTextArea statusLog;
-    private HashMap<String, String> metadata;
+    private String filePath = null;
 
     public Main() {
         initialize();
@@ -49,7 +48,7 @@ public class Main {
 
         frame = new JFrame(APP_NAME);
         frame.setResizable(false);
-        frame.setBounds(100, 100, 450, 175);
+        frame.setBounds(100, 100, 450, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -70,29 +69,40 @@ public class Main {
         logo.setBounds(21, 10, 408, 58);
         panel.add(logo);
 
-        filePath = new JFormattedTextField();
-        filePath.setEnabled(false);
-        filePath.setEditable(false);
-        filePath.setBounds(140, 76, 282, 28);
-        panel.add(filePath);
+        statusLog = new JTextArea();
+        statusLog.setEditable(false);
+        statusLog.setFont(new Font("Dialog", Font.PLAIN, 11));
+        statusLog.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(21, 76, 408, 222);
+        scrollPane
+                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setViewportView(statusLog);
+        panel.add(scrollPane);
 
-        JButton selectForm = new JButton("Select form");
-        selectForm.setBounds(21, 77, 122, 29);
+        JButton selectForm = new JButton("1. Select form");
+        selectForm.setBounds(40, 311, 175, 29);
         selectForm.addActionListener(new FileChooser());
-
         panel.add(selectForm);
 
-        JLabel helpText = new JLabel(
-                "Select a form to generate a coding guide in the same directory.");
-        helpText.setBounds(21, 104, 408, 29);
-        helpText.setHorizontalAlignment(SwingConstants.CENTER);
-        helpText.setFont(new Font("Dialog", Font.PLAIN, 11));
-        panel.add(helpText);
+        JButton generateCodebook = new JButton("2. Make codebook");
+        generateCodebook.setBounds(235, 311, 175, 29);
+        generateCodebook.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (filePath == null) {
+                    appendToStatus("Please select a form first.");
+                    return;
+                }  else {
+                     makeCodebook(new File(filePath));
+                }
+            }
+        });
+        panel.add(generateCodebook);
 
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setIconImage(appLogo);
 
-        //TODO: where do we put error messages?
     }
 
     private void makeCodebook(File inputFile) {
@@ -101,18 +111,22 @@ public class Main {
         String inputFilename = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
         String outputFolderpath = inputFile.getParentFile().getAbsolutePath();
 
-        CodebookEngine ce = new CodebookEngine();
-        HashMap<String, ArrayList<CodebookEntry>> entries = ce
-                .loadForm(inputFile.getAbsolutePath());
+        // generate the engine off the ui thread
+        CodebookEngine ce = new CodebookEngine(inputFile.getAbsolutePath());
+        HashMap<String, ArrayList<CodebookEntry>> entries = ce.doInBackground();
 
         for (Map.Entry<String, ArrayList<CodebookEntry>> entry : entries.entrySet()) {
-
-            CodebookMaker cm = new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath);
-            cm.makeCodebook();
-
+            appendToStatus("     Generating codebook for " + entry.getKey() + "...");
+            new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath).execute();
         }
 
+        appendToStatus("Codebooks are at " + outputFolderpath);
 
+
+    }
+
+    private void appendToStatus(String text) {
+        statusLog.setText(statusLog.getText() + text + "\n");
     }
 
     class FileChooser implements ActionListener {
@@ -120,9 +134,9 @@ public class Main {
             JFileChooser fileChooser = new JFileChooser();
             int rVal = fileChooser.showOpenDialog(frame);
             if (rVal == JFileChooser.APPROVE_OPTION) {
-                //TODO: This doesn't update quickly
-                filePath.setText(fileChooser.getSelectedFile().getAbsolutePath());
-                makeCodebook(new File(fileChooser.getSelectedFile().getAbsolutePath()));
+                statusLog.setText("");
+                filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                appendToStatus("Selected form " + filePath);
             }
         }
     }

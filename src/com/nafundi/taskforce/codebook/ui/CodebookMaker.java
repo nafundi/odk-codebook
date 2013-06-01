@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xml.sax.SAXException;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,7 +19,7 @@ import static java.util.Arrays.asList;
 /**
  * Created by yanokwa on 5/29/13.
  */
-public class CodebookMaker {
+public class CodebookMaker extends SwingWorker {
 
     private ArrayList<CodebookEntry> codebookEntries;
     private String locale;
@@ -32,7 +33,7 @@ public class CodebookMaker {
         this.outputFolderPath = outputFolderPath;
     }
 
-    public void makeCodebook() {
+    public Integer doInBackground() {
 
         // string writer
         StringWriter writer = new StringWriter();
@@ -169,8 +170,8 @@ public class CodebookMaker {
                 CodebookEntry entry = codebookEntries.get(i);
                 String variable = entry.getVariable();
                 // add newlines and tabs
-                String question = entry.getQuestion().replace("\n", "<br/>").replace("\t", "<span style=\"padding-left:10px\"> </span>");
-                String value = entry.getValue().replace("\n", "<br/>").replace("\t", "<span style=\"padding-left:10px\"> </span>");
+                String question = entry.getQuestion();
+                String value = entry.getValue();
 
                 for (String cell : asList(variable, question, value)) {
                     td().text(cell).end();
@@ -202,27 +203,33 @@ public class CodebookMaker {
         }
 
         // create render of document
-        ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocument(document, null);
-        renderer.layout();
+        // ITextRender is not thread-safe
+        synchronized (this) {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocument(document, null);
+            renderer.layout();
 
-        // TODO: asian characters are in html but don't show up in pdf
-        // write out document as pdf
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(outputFolderPath + File.separator + inputFilename + " (" + locale + ").pdf");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            // TODO: asian characters are in html but don't show up in pdf
+            // write out document as pdf
+            OutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(outputFolderPath + File.separator + inputFilename + " (" + locale + ").pdf");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                renderer.createPDF(outputStream);
+            } catch (DocumentException e) {
+                e.printStackTrace();
+            }
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
-        try {
-            renderer.createPDF(outputStream);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
-        try {
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        return 0;
     }
 }
