@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.nafundi.taskforce.codebook.ui;
+package com.nafundi.taskforce.codebook.logic;
 
 import org.javarosa.core.services.IPropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;

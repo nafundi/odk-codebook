@@ -1,4 +1,4 @@
-package com.nafundi.taskforce.codebook.ui;
+package com.nafundi.taskforce.codebook.logic;
 
 import com.googlecode.jatl.Html;
 import com.lowagie.text.DocumentException;
@@ -23,7 +23,11 @@ public class CodebookMaker extends SwingWorker {
     private String locale;
     private String inputFilename;
     private String outputFolderPath;
+    private boolean successful = false;
 
+    public boolean getSuccessful() {
+       return successful;
+    }
 
     public String getLocale () {
         return locale;
@@ -217,14 +221,17 @@ public class CodebookMaker extends SwingWorker {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
+            return -1;
         }
         Document document = null;
         try {
             document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
         } catch (SAXException e) {
             e.printStackTrace();
+            return -1;
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
 
         // create render of document
@@ -241,19 +248,24 @@ public class CodebookMaker extends SwingWorker {
                 outputStream = new FileOutputStream(outputFolderPath + File.separator + inputFilename + " (" + locale + ").pdf");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
+                return -1;
             }
             try {
                 renderer.createPDF(outputStream);
             } catch (DocumentException e) {
                 e.printStackTrace();
+                return -1;
             }
             try {
                 outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                return -1;
             }
 
         }
+
+        successful = true;
         return 0;
     }
 

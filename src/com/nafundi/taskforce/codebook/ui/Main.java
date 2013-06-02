@@ -2,6 +2,9 @@
 package com.nafundi.taskforce.codebook.ui;
 
 import com.apple.eawt.Application;
+import com.nafundi.taskforce.codebook.logic.CodebookEngine;
+import com.nafundi.taskforce.codebook.logic.CodebookEntry;
+import com.nafundi.taskforce.codebook.logic.CodebookMaker;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -123,13 +126,17 @@ public class Main {
                 CodebookMaker maker = new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath) {
                     @Override
                     protected void done() {
-                        appendToStatus("Finished generating " + getLocale() + " codebook.");
+                        if (getSuccessful()) {
+                            appendToStatus("Finished generating " + getLocale() + " codebook.");
+                        } else {
+                            appendToStatus("Failed to generate " + getLocale() + " codebook.");
+                        }
                     }
                 };
                 maker.execute();
             }
         } else {
-            appendToStatus("Codebook generation failed. Do you have a valid XForm?\n");
+            appendToStatus("Failed to generate codebooks. Do you have a valid XForm?\n");
         }
 
 

@@ -1,5 +1,5 @@
 
-package com.nafundi.taskforce.codebook.ui;
+package com.nafundi.taskforce.codebook.logic;
 
 public class CodebookEntry {
 

@@ -1,5 +1,5 @@
 
-package com.nafundi.taskforce.codebook.ui;
+package com.nafundi.taskforce.codebook.logic;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
