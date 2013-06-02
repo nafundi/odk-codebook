@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
-public class CodebookEngine extends SwingWorker {
+public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<CodebookEntry>>, String> {
 
     private String filepath;
 
@@ -29,6 +29,10 @@ public class CodebookEngine extends SwingWorker {
     }
 
     public HashMap<String, ArrayList<CodebookEntry>> doInBackground() {
+
+        // TODO this shouldn't block
+        publish("\nProcessing form. Please wait...\n");
+
         new XFormsModule().registerModule();
         // needed to override rms property manager
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(5));
@@ -46,8 +50,8 @@ public class CodebookEngine extends SwingWorker {
             }
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             errorMsg = e.getMessage();
+            e.printStackTrace();
         } catch (XFormParseException e) {
             errorMsg = e.getMessage();
             e.printStackTrace();
@@ -56,7 +60,7 @@ public class CodebookEngine extends SwingWorker {
             e.printStackTrace();
         }
         if (!"".equals(errorMsg)) {
-            System.out.println(errorMsg);
+            publishError(errorMsg);
             return null;
         }
         // new evaluation context for function handlers
@@ -64,6 +68,11 @@ public class CodebookEngine extends SwingWorker {
         fd.initialize(true);
 
         HashMap<String, ArrayList<CodebookEntry>> entries = new HashMap<String, ArrayList<CodebookEntry>>();
+
+        // TODO what if you have no languages
+        if (fd.getLocalizer() == null) {
+            fd.setLocalizer(new Localizer());
+        }
         String[] languages = fd.getLocalizer().getAvailableLocales();
         for (String language : languages) {
             fd.getLocalizer().setLocale(language);
@@ -225,6 +234,11 @@ public class CodebookEngine extends SwingWorker {
         }
         return returnText;
     }
+
+    private void publishError(String errorMessage) {
+        publish("Failed to process form because " + errorMessage);
+    }
+
 
 }
 

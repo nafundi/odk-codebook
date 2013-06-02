@@ -17,21 +17,13 @@ import java.util.ArrayList;
 /**
  * Created by yanokwa on 5/29/13.
  */
-public class CodebookMaker extends SwingWorker {
+public class CodebookMaker extends SwingWorker<Integer, String> {
 
     private ArrayList<CodebookEntry> codebookEntries;
     private String locale;
     private String inputFilename;
     private String outputFolderPath;
-    private boolean successful = false;
 
-    public boolean getSuccessful() {
-       return successful;
-    }
-
-    public String getLocale () {
-        return locale;
-    }
     public CodebookMaker(ArrayList<CodebookEntry> codebookEntries, String locale, String inputFilename, String outputFolderPath) {
         this.codebookEntries = codebookEntries;
         this.locale = locale;
@@ -39,7 +31,13 @@ public class CodebookMaker extends SwingWorker {
         this.outputFolderPath = outputFolderPath;
     }
 
+    public String getLocale() {
+        return locale;
+    }
+
     public Integer doInBackground() {
+
+        String errorMsg = "";
 
         // string writer
         StringWriter writer = new StringWriter();
@@ -71,8 +69,8 @@ public class CodebookMaker extends SwingWorker {
                     "a.muted:hover,a.muted:focus{color:#808080;}\n" +
                     ".text-warning{color:#c09853;}\n" +
                     "a.text-warning:hover,a.text-warning:focus{color:#a47e3c;}\n" +
-                    ".text-error{color:#b94a48;}\n" +
-                    "a.text-error:hover,a.text-error:focus{color:#953b39;}\n" +
+                    ".text-publishError{color:#b94a48;}\n" +
+                    "a.text-publishError:hover,a.text-publishError:focus{color:#953b39;}\n" +
                     ".text-info{color:#3a87ad;}\n" +
                     "a.text-info:hover,a.text-info:focus{color:#2d6987;}\n" +
                     ".text-success{color:#468847;}\n" +
@@ -150,13 +148,13 @@ public class CodebookMaker extends SwingWorker {
                     ".table td.span11,.table th.span11{float:none;width:844px;margin-left:0;}\n" +
                     ".table td.span12,.table th.span12{float:none;width:924px;margin-left:0;}\n" +
                     ".table tbody tr.success>td{background-color:#dff0d8;}\n" +
-                    ".table tbody tr.error>td{background-color:#f2dede;}\n" +
+                    ".table tbody tr.publishError>td{background-color:#f2dede;}\n" +
                     ".table tbody tr.warning>td{background-color:#fcf8e3;}\n" +
                     ".table tbody tr.info>td{background-color:#d9edf7;}\n" +
                     ".table-hover tbody tr.success:hover>td{background-color:#d0e9c6;}\n" +
-                    ".table-hover tbody tr.error:hover>td{background-color:#ebcccc;}\n" +
+                    ".table-hover tbody tr.publishError:hover>td{background-color:#ebcccc;}\n" +
                     ".table-hover tbody tr.warning:hover>td{background-color:#faf2cc;}\n" +
-                    ".table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}\n"+
+                    ".table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}\n" +
                     ".table tbody tr.gray>td{background-color:#f9f9f9;}\n" +
                     ".hidden {visibility:hidden;}\n").end();
             end();
@@ -184,19 +182,19 @@ public class CodebookMaker extends SwingWorker {
 
                 // select question
                 if (question.contains("|")) {
-                    td().text(question.replace("|","")).end();
+                    td().text(question.replace("|", "")).end();
                     td();
-                        table().classAttr("table table-bordered table-condensed");
-                        String values[] = value.split("\n");
-                        for (int j = 0; j < values.length; j++) {
-                            tr();
-                            //value
-                            td().text(values[j].split("\t")[1]).end();
-                            //label
-                            td().text(values[j].split("\t")[0]).end();
-                            end();
-                        }
+                    table().classAttr("table table-bordered table-condensed");
+                    String values[] = value.split("\n");
+                    for (int j = 0; j < values.length; j++) {
+                        tr();
+                        //value
+                        td().text(values[j].split("\t")[1]).end();
+                        //label
+                        td().text(values[j].split("\t")[0]).end();
                         end();
+                    }
+                    end();
                     end();
                 } else {
                     td().text(question).end();
@@ -220,18 +218,18 @@ public class CodebookMaker extends SwingWorker {
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
+            errorMsg = e.getMessage();
             e.printStackTrace();
-            return -1;
         }
         Document document = null;
         try {
             document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
         } catch (SAXException e) {
+            errorMsg = e.getMessage();
             e.printStackTrace();
-            return -1;
         } catch (IOException e) {
+            errorMsg = e.getMessage();
             e.printStackTrace();
-            return -1;
         }
 
         // create render of document
@@ -247,28 +245,36 @@ public class CodebookMaker extends SwingWorker {
             try {
                 outputStream = new FileOutputStream(outputFolderPath + File.separator + inputFilename + " (" + locale + ").pdf");
             } catch (FileNotFoundException e) {
+                errorMsg = e.getMessage();
                 e.printStackTrace();
-                return -1;
             }
             try {
                 renderer.createPDF(outputStream);
             } catch (DocumentException e) {
+                errorMsg = e.getMessage();
                 e.printStackTrace();
-                return -1;
             }
             try {
                 outputStream.close();
             } catch (IOException e) {
+                errorMsg = e.getMessage();
                 e.printStackTrace();
-                return -1;
             }
 
         }
 
-        successful = true;
+        if (!"".equals(errorMsg)) {
+            publishError(errorMsg);
+            return -1;
+        }
+
+        publish("Finished making " + getLocale() + " codebook.");
         return 0;
     }
 
+    private void publishError(String errorMessage) {
+        publish("Failed to make " + getLocale() + " codebook because " + errorMessage);
+    }
 
 
 }

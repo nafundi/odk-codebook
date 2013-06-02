@@ -18,6 +18,7 @@ import java.util.Map;
 
 public class Main {
 
+
     public static String APP_NAME = "Task Force Codebook RC1";
     private JFrame frame;
     private JTextArea statusLog;
@@ -28,6 +29,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
 
         if (System.getProperty("os.name").contains("Mac")) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -107,36 +109,38 @@ public class Main {
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setIconImage(appLogo);
 
+
     }
 
     private void makeCodebook(File inputFile) {
+
 
         String filenameWithExtension = inputFile.getName();
         String inputFilename = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
         String outputFolderpath = inputFile.getParentFile().getAbsolutePath();
 
-        appendToStatus("Saving codebooks to " + outputFolderpath + "\n");
-
-        // generate the engine off the ui thread
-        CodebookEngine ce = new CodebookEngine(inputFile.getAbsolutePath());
+        CodebookEngine ce = new CodebookEngine(inputFile.getAbsolutePath()) {
+            @Override
+            protected void process(java.util.List<String> messages) {
+                for (String message : messages) {
+                    appendToStatus(message);
+                }
+            }
+        };
         HashMap<String, ArrayList<CodebookEntry>> entries = ce.doInBackground();
 
-        if (entries != null) {
+        if (entries != null && entries.size() > 0) {
             for (Map.Entry<String, ArrayList<CodebookEntry>> entry : entries.entrySet()) {
                 CodebookMaker maker = new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath) {
                     @Override
-                    protected void done() {
-                        if (getSuccessful()) {
-                            appendToStatus("Finished generating " + getLocale() + " codebook.");
-                        } else {
-                            appendToStatus("Failed to generate " + getLocale() + " codebook.");
+                    protected void process(java.util.List<String> messages) {
+                        for (String message : messages) {
+                            appendToStatus(message);
                         }
                     }
                 };
-                maker.execute();
+                maker.doInBackground();
             }
-        } else {
-            appendToStatus("Failed to generate codebooks. Do you have a valid XForm?\n");
         }
 
 
@@ -156,7 +160,11 @@ public class Main {
             if (rVal == JFileChooser.APPROVE_OPTION) {
                 statusLog.setText("");
                 filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                appendToStatus("Selected form " + filePath);
+                appendToStatus("Selected form: " + filePath);
+
+                String outputFolderpath = new File(filePath).getParentFile().getAbsolutePath();
+                appendToStatus("Output folder: " + outputFolderpath);
+
             }
         }
     }
