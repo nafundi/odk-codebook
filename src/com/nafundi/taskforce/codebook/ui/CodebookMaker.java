@@ -14,8 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 
-import static java.util.Arrays.asList;
-
 /**
  * Created by yanokwa on 5/29/13.
  */
@@ -26,6 +24,10 @@ public class CodebookMaker extends SwingWorker {
     private String inputFilename;
     private String outputFolderPath;
 
+
+    public String getLocale () {
+        return locale;
+    }
     public CodebookMaker(ArrayList<CodebookEntry> codebookEntries, String locale, String inputFilename, String outputFolderPath) {
         this.codebookEntries = codebookEntries;
         this.locale = locale;
@@ -42,12 +44,14 @@ public class CodebookMaker extends SwingWorker {
             head();
             meta().charset("utf-8").end();
             // bootstrap css with only headings, body type, and tables
-            // also have custom tr.gray tag to fix bug in html to pdf export
+            // add custom tr.gray tag to fix bug in html to pdf export
+            // add custom hidden tag to align lables and values in selects
+
             style().type("text/css").text(".clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:\"\";line-height:0;}\n" +
                     ".clearfix:after{clear:both;}\n" +
                     ".hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}\n" +
                     ".input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-                    "body{margin:0;font-family:\"Lucida Sans Unicode\",Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
+                    "body{margin:0;font-family:\"Helvetica\",Helvetica,Arial,sans-serif;font-size:11px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
                     "a{color:#0088cc;text-decoration:none;}\n" +
                     "a:hover,a:focus{color:#005580;text-decoration:underline;}\n" +
                     ".img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;}\n" +
@@ -145,19 +149,20 @@ public class CodebookMaker extends SwingWorker {
                     ".table tbody tr.error>td{background-color:#f2dede;}\n" +
                     ".table tbody tr.warning>td{background-color:#fcf8e3;}\n" +
                     ".table tbody tr.info>td{background-color:#d9edf7;}\n" +
-                    ".table tbody tr.gray>td{background-color:#f9f9f9;}\n" +
                     ".table-hover tbody tr.success:hover>td{background-color:#d0e9c6;}\n" +
                     ".table-hover tbody tr.error:hover>td{background-color:#ebcccc;}\n" +
                     ".table-hover tbody tr.warning:hover>td{background-color:#faf2cc;}\n" +
-                    ".table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}\n").end();
+                    ".table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}\n"+
+                    ".table tbody tr.gray>td{background-color:#f9f9f9;}\n" +
+                    ".hidden {visibility:hidden;}\n").end();
             end();
             body();
-            h2().text(inputFilename + " (" + locale + ")").end();
-            table().classAttr("table table-striped table-bordered");
+            h4().text(inputFilename + " (" + locale + ")").end();
+            table().classAttr("table table-bordered table-condensed");
             thead().tr();
-            for (String header : asList("Variable Name", "Question Text", "Saved Value")) {
-                th().text(header).end();
-            }
+            th().text("Variable Name").end();
+            th().text("Question Text").end();
+            th().text("Saved Value").end();
             end().end();
             tbody();
             for (int i = 0; i < codebookEntries.size(); i++) {
@@ -168,14 +173,32 @@ public class CodebookMaker extends SwingWorker {
                     tr();
                 }
                 CodebookEntry entry = codebookEntries.get(i);
-                String variable = entry.getVariable();
-                // add newlines and tabs
+                td().text(entry.getVariable()).end();
+
                 String question = entry.getQuestion();
                 String value = entry.getValue();
 
-                for (String cell : asList(variable, question, value)) {
-                    td().text(cell).end();
+                // select question
+                if (question.contains("|")) {
+                    td().text(question.replace("|","")).end();
+                    td();
+                        table().classAttr("table table-bordered table-condensed");
+                        String values[] = value.split("\n");
+                        for (int j = 0; j < values.length; j++) {
+                            tr();
+                            //value
+                            td().text(values[j].split("\t")[1]).end();
+                            //label
+                            td().text(values[j].split("\t")[0]).end();
+                            end();
+                        }
+                        end();
+                    end();
+                } else {
+                    td().text(question).end();
+                    td().text(value).end();
                 }
+
                 end();
             }
             done();
@@ -185,6 +208,8 @@ public class CodebookMaker extends SwingWorker {
         String htmlHeader = "<!DOCTYPE html>\n<html>\n";
         String htmlFooter = "\n</html>";
         String htmlDocument = htmlHeader + StringEscapeUtils.unescapeHtml(writer.getBuffer().toString()) + htmlFooter;
+
+//        System.out.println(htmlDocument);
 
         // move html into document
         DocumentBuilder builder = null;
@@ -229,7 +254,9 @@ public class CodebookMaker extends SwingWorker {
             }
 
         }
-
         return 0;
     }
+
+
+
 }

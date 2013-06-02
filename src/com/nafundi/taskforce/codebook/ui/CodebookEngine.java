@@ -57,6 +57,7 @@ public class CodebookEngine extends SwingWorker {
         }
         if (!"".equals(errorMsg)) {
             System.out.println(errorMsg);
+            return null;
         }
         // new evaluation context for function handlers
         fd.setEvaluationContext(new EvaluationContext(null));
@@ -94,7 +95,8 @@ public class CodebookEngine extends SwingWorker {
                 StringBuilder values = new StringBuilder();
 
                 // add question text
-                questions.append(getLocalizedLabel(qd.getTextID(), qd.getLabelInnerText(), localizer) + "<br/>");
+                String questionText = getLocalizedLabel(qd.getTextID(), qd.getLabelInnerText(), localizer);
+                questions.append(questionText + "<br/>");
 
                 // populate questions and values appropriately
                 switch (qd.getControlType()) {
@@ -137,14 +139,11 @@ public class CodebookEngine extends SwingWorker {
                         break;
                     case Constants.CONTROL_SELECT_ONE:
                     case Constants.CONTROL_SELECT_MULTI:
-                        values.append("<br/>");
-                        questions.append("<ul>");
                         Vector<SelectChoice> choices = qd.getChoices();
+                        questions.append("|");
                         for (SelectChoice choice : choices) {
-                            questions.append("<li>" + getLocalizedLabel(choice.getTextID(), choice.getLabelInnerText(), localizer) + "</li>");
-                            values.append(choice.getValue() + "<br/>");
+                            values.append(getLocalizedLabel(choice.getTextID(), choice.getLabelInnerText(), localizer) + "\t" + choice.getValue() + "\n");
                         }
-                        questions.append("</ul>");
                         break;
                     default:
                         break;
@@ -197,7 +196,7 @@ public class CodebookEngine extends SwingWorker {
 
     }
 
-    // TODO multimedia don't work
+    // TODO multimedia paths don't work
     private String getLocalizedLabel(String textId, String labelText, Localizer l) {
 
         if (textId == null || textId == "") return labelText;

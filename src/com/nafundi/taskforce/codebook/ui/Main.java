@@ -4,6 +4,7 @@ package com.nafundi.taskforce.codebook.ui;
 import com.apple.eawt.Application;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -93,8 +94,8 @@ public class Main {
                 if (filePath == null) {
                     appendToStatus("Please select a form first.");
                     return;
-                }  else {
-                     makeCodebook(new File(filePath));
+                } else {
+                    makeCodebook(new File(filePath));
                 }
             }
         });
@@ -111,16 +112,25 @@ public class Main {
         String inputFilename = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
         String outputFolderpath = inputFile.getParentFile().getAbsolutePath();
 
+        appendToStatus("Saving codebooks to " + outputFolderpath + "\n");
+
         // generate the engine off the ui thread
         CodebookEngine ce = new CodebookEngine(inputFile.getAbsolutePath());
         HashMap<String, ArrayList<CodebookEntry>> entries = ce.doInBackground();
 
-        for (Map.Entry<String, ArrayList<CodebookEntry>> entry : entries.entrySet()) {
-            appendToStatus("     Generating codebook for " + entry.getKey() + "...");
-            new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath).execute();
+        if (entries != null) {
+            for (Map.Entry<String, ArrayList<CodebookEntry>> entry : entries.entrySet()) {
+                CodebookMaker maker = new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath) {
+                    @Override
+                    protected void done() {
+                        appendToStatus("Finished generating " + getLocale() + " codebook.");
+                    }
+                };
+                maker.execute();
+            }
+        } else {
+            appendToStatus("Codebook generation failed. Do you have a valid XForm?\n");
         }
-
-        appendToStatus("Codebooks are at " + outputFolderpath);
 
 
     }
@@ -132,6 +142,9 @@ public class Main {
     class FileChooser implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(
+                    "XML files (*.xml)", "xml");
+            fileChooser.setFileFilter(xmlfilter);
             int rVal = fileChooser.showOpenDialog(frame);
             if (rVal == JFileChooser.APPROVE_OPTION) {
                 statusLog.setText("");
