@@ -33,6 +33,8 @@ public class Main {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty(
                     "com.apple.mrj.application.apple.menu.about.name", APP_NAME);
+            System.setProperty("com.apple.macos.use-file-dialog-packages", "true");
+            System.setProperty("com.apple.macos.useScreenMenuBar", "true");
 
         }
 
@@ -58,8 +60,6 @@ public class Main {
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
 
-        // TODO: Run app via double click and images don't work. java -jar
-        // app.jar works though
         ImageIcon mainLogo = new javax.swing.ImageIcon("res/taskforce-main-logo.png");
         Image appLogo = Toolkit.getDefaultToolkit().getImage("res/taskforce-app-logo.png");
 
