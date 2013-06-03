@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static String APP_NAME = "Task Force Codebook RC1";
+    public static String APP_NAME = "Task Force LINKS Codebook RC1";
     private JFrame frame;
     private JTextArea statusLog;
     private String filePath = null;
@@ -143,6 +143,8 @@ public class Main {
                 };
                 maker.doInBackground();
             }
+        }  else {
+            appendToStatus("Failed to load form.");
         }
 
     }

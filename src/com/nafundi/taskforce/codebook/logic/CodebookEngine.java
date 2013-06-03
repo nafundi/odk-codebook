@@ -30,8 +30,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
     public HashMap<String, ArrayList<CodebookEntry>> doInBackground() {
 
-        // TODO this shouldn't block the UI
-        publish("\nProcessing form. Please wait...\n");
+        publish("\nLoading form...");
 
         new XFormsModule().registerModule();
         // needed to override rms property manager
@@ -75,6 +74,8 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
         String[] languages = fd.getLocalizer().getAvailableLocales();
         for (String language : languages) {
+            publish("Processing " + language + " language...");
+
             fd.getLocalizer().setLocale(language);
             ArrayList<CodebookEntry> entry = new ArrayList<CodebookEntry>();
             populateEntries(fd.getInstance().getRoot(), fd, entry);
@@ -83,12 +84,14 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
         // if no languages are defined, do the default
         if (languages.length == 0) {
+            String defaultLanguage = "Default";
+            publish("Processing " + defaultLanguage + " language...");
             ArrayList<CodebookEntry> entry = new ArrayList<CodebookEntry>();
             populateEntries(fd.getInstance().getRoot(), fd, entry);
-            entries.put("default-lang", entry);
+            entries.put(defaultLanguage, entry);
         }
 
-        return entries;
+       return entries;
 
     }
 

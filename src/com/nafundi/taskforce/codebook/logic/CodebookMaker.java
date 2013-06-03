@@ -47,7 +47,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             meta().charset("utf-8").end();
             // bootstrap css with only headings, body type, and tables
             // add custom tr.gray tag to fix bug in html to pdf export
-            // add custom hidden tag to align lables and values in selects
+            // add custom hidden tag to align labels and values in selects
 
             style().type("text/css").text(".clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:\"\";line-height:0;}\n" +
                     ".clearfix:after{clear:both;}\n" +
