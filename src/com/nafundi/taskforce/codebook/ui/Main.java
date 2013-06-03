@@ -18,7 +18,6 @@ import java.util.Map;
 
 public class Main {
 
-
     public static String APP_NAME = "Task Force Codebook RC1";
     private JFrame frame;
     private JTextArea statusLog;
@@ -29,7 +28,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
 
         if (System.getProperty("os.name").contains("Mac")) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -60,7 +58,8 @@ public class Main {
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
 
-        // TODO: Run app via double click and images don't work. java -jar app.jar works though
+        // TODO: Run app via double click and images don't work. java -jar
+        // app.jar works though
         ImageIcon mainLogo = new javax.swing.ImageIcon("res/taskforce-main-logo.png");
         Image appLogo = Toolkit.getDefaultToolkit().getImage("res/taskforce-app-logo.png");
 
@@ -101,7 +100,9 @@ public class Main {
                     appendToStatus("Please select a form first.");
                     return;
                 } else {
-                    makeCodebook(new File(filePath));
+                    MyTask process = new MyTask(new File(filePath));
+                    process.execute();
+
                 }
             }
         });
@@ -110,14 +111,13 @@ public class Main {
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setIconImage(appLogo);
 
-
     }
 
     private void makeCodebook(File inputFile) {
 
-
         String filenameWithExtension = inputFile.getName();
-        String inputFilename = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
+        String inputFilename = filenameWithExtension.substring(0,
+                filenameWithExtension.lastIndexOf('.'));
         String outputFolderpath = inputFile.getParentFile().getAbsolutePath();
 
         CodebookEngine ce = new CodebookEngine(inputFile.getAbsolutePath()) {
@@ -132,7 +132,8 @@ public class Main {
 
         if (entries != null && entries.size() > 0) {
             for (Map.Entry<String, ArrayList<CodebookEntry>> entry : entries.entrySet()) {
-                CodebookMaker maker = new CodebookMaker(entry.getValue(), entry.getKey(), inputFilename, outputFolderpath) {
+                CodebookMaker maker = new CodebookMaker(entry.getValue(), entry.getKey(),
+                        inputFilename, outputFolderpath) {
                     @Override
                     protected void process(java.util.List<String> messages) {
                         for (String message : messages) {
@@ -143,7 +144,6 @@ public class Main {
                 maker.doInBackground();
             }
         }
-
 
     }
 
@@ -170,5 +170,18 @@ public class Main {
         }
     }
 
+    class MyTask extends SwingWorker {
+        private File selected;
+
+        public MyTask(File f) {
+            super();
+            selected = f;
+        }
+
+        protected Object doInBackground() throws Exception {
+            makeCodebook(selected);
+            return null;
+        }
+    }
 
 }
