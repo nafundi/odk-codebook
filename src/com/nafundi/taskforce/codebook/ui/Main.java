@@ -12,8 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -145,7 +143,7 @@ public class Main {
                 };
                 maker.doInBackground();
             }
-        }  else {
+        } else {
             appendToStatus("Failed to load form.");
         }
 
@@ -186,7 +184,7 @@ public class Main {
             try {
                 makeCodebook(selected);
             } catch (Exception e) {
-                appendToStatus(e.getMessage());
+                appendToStatus("Failed to make codebook because " + e.getMessage());
             }
             return null;
         }
