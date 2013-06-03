@@ -30,7 +30,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
     public HashMap<String, ArrayList<CodebookEntry>> doInBackground() {
 
-        // TODO this shouldn't block
+        // TODO this shouldn't block the UI
         publish("\nProcessing form. Please wait...\n");
 
         new XFormsModule().registerModule();
@@ -69,7 +69,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
         HashMap<String, ArrayList<CodebookEntry>> entries = new HashMap<String, ArrayList<CodebookEntry>>();
 
-        // TODO what if you have no languages
+        // TODO what if you have no languages specified in the form at all?
         if (fd.getLocalizer() == null) {
             fd.setLocalizer(new Localizer());
         }
@@ -205,7 +205,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
     }
 
-    // TODO multimedia paths don't work
+    // TODO prompts with file paths (e.g., images as label) don't work.
     private String getLocalizedLabel(String textId, String labelText, Localizer l) {
 
         if (textId == null || textId == "") return labelText;

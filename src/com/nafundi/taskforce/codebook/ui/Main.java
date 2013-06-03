@@ -60,6 +60,7 @@ public class Main {
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
 
+        // TODO: Run app via double click and images don't work. java -jar app.jar works though
         ImageIcon mainLogo = new javax.swing.ImageIcon("res/taskforce-main-logo.png");
         Image appLogo = Toolkit.getDefaultToolkit().getImage("res/taskforce-app-logo.png");
 
