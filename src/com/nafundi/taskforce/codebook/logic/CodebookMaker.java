@@ -35,7 +35,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
         return locale;
     }
 
-    public Integer doInBackground() {
+    public Integer doInBackground() throws Exception {
 
         String errorMsg = "";
 
@@ -222,15 +222,15 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             e.printStackTrace();
         }
         Document document = null;
-        try {
+//        try {
             document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
-        } catch (SAXException e) {
-            errorMsg = e.getMessage();
-            e.printStackTrace();
-        } catch (IOException e) {
-            errorMsg = e.getMessage();
-            e.printStackTrace();
-        }
+//        } catch (SAXException e) {
+//            errorMsg = e.getMessage();
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            errorMsg = e.getMessage();
+//            e.printStackTrace();
+//        }
 
         // create render of document
         // ITextRender is not thread-safe

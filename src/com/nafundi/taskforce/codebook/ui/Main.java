@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -113,7 +115,7 @@ public class Main {
 
     }
 
-    private void makeCodebook(File inputFile) {
+    private void makeCodebook(File inputFile) throws Exception {
 
         String filenameWithExtension = inputFile.getName();
         String inputFilename = filenameWithExtension.substring(0,
@@ -180,8 +182,12 @@ public class Main {
             selected = f;
         }
 
-        protected Object doInBackground() throws Exception {
-            makeCodebook(selected);
+        protected Object doInBackground() {
+            try {
+                makeCodebook(selected);
+            } catch (Exception e) {
+                appendToStatus(e.getMessage());
+            }
             return null;
         }
     }
