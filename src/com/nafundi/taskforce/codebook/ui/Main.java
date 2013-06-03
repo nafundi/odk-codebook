@@ -35,7 +35,6 @@ public class Main {
                     "com.apple.mrj.application.apple.menu.about.name", APP_NAME);
             System.setProperty("com.apple.macos.use-file-dialog-packages", "true");
             System.setProperty("com.apple.macos.useScreenMenuBar", "true");
-
         }
 
         EventQueue.invokeLater(new Runnable() {
@@ -60,8 +59,8 @@ public class Main {
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
 
-        ImageIcon mainLogo = new javax.swing.ImageIcon("res/taskforce-main-logo.png");
-        Image appLogo = Toolkit.getDefaultToolkit().getImage("res/taskforce-app-logo.png");
+        ImageIcon mainLogo = new javax.swing.ImageIcon(getClass().getResource("/taskforce-main-logo.png"));
+        Image appLogo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/taskforce-app-logo.png"));
 
         if (System.getProperty("os.name").toUpperCase().contains("MAC")) {
             Application app = Application.getApplication();
