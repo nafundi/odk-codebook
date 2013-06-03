@@ -69,16 +69,23 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
         HashMap<String, ArrayList<CodebookEntry>> entries = new HashMap<String, ArrayList<CodebookEntry>>();
 
-        // TODO what if you have no languages specified in the form at all?
         if (fd.getLocalizer() == null) {
             fd.setLocalizer(new Localizer());
         }
+
         String[] languages = fd.getLocalizer().getAvailableLocales();
         for (String language : languages) {
             fd.getLocalizer().setLocale(language);
             ArrayList<CodebookEntry> entry = new ArrayList<CodebookEntry>();
             populateEntries(fd.getInstance().getRoot(), fd, entry);
             entries.put(language, entry);
+        }
+
+        // if no languages are defined, do the default
+        if (languages.length == 0) {
+            ArrayList<CodebookEntry> entry = new ArrayList<CodebookEntry>();
+            populateEntries(fd.getInstance().getRoot(), fd, entry);
+            entries.put("default-lang", entry);
         }
 
         return entries;
