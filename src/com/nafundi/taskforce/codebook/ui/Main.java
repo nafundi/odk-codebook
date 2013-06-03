@@ -35,6 +35,7 @@ public class Main {
                     "com.apple.mrj.application.apple.menu.about.name", APP_NAME);
             System.setProperty("com.apple.macos.use-file-dialog-packages", "true");
             System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+
         }
 
         EventQueue.invokeLater(new Runnable() {
@@ -53,7 +54,7 @@ public class Main {
 
         frame = new JFrame(APP_NAME);
         frame.setResizable(false);
-        frame.setBounds(100, 100, 450, 400);
+        frame.setBounds(100, 100, 450, 380);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -89,6 +90,7 @@ public class Main {
         selectForm.setBounds(40, 311, 175, 29);
         selectForm.addActionListener(new FileChooser());
         panel.add(selectForm);
+
 
         JButton generateCodebook = new JButton("2. Make codebook");
         generateCodebook.setBounds(235, 311, 175, 29);
