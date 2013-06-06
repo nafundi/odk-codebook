@@ -22,7 +22,7 @@ import java.util.Vector;
 
 public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<CodebookEntry>>, String> {
 
-    private String filepath;
+    private final String filepath;
 
     public CodebookEngine(String filepath) {
         this.filepath = filepath;
@@ -39,7 +39,6 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
         File xml = new File(filepath);
         String errorMsg = "";
         FormDef fd = null;
-        HashMap<String, String> fields = null;
 
         try {
             FileInputStream fis = new FileInputStream(xml);
@@ -63,8 +62,13 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
             return null;
         }
         // new evaluation context for function handlers
-        fd.setEvaluationContext(new EvaluationContext(null));
-        fd.initialize(true);
+        if (fd != null) {
+            fd.setEvaluationContext(new EvaluationContext(null));
+            fd.initialize(true);
+        } else {
+            publishError("FormDef is null");
+            return null;
+        }
 
         HashMap<String, ArrayList<CodebookEntry>> entries = new HashMap<String, ArrayList<CodebookEntry>>();
 
@@ -91,8 +95,8 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
             entries.put(defaultLanguage, entry);
         }
 
-       publish("");
-       return entries;
+        publish("");
+        return entries;
 
     }
 

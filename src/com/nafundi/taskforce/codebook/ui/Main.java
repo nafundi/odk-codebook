@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static String APP_NAME = "Task Force LINKS Codebook RC1";
+    private static final String APP_NAME = "Task Force LINKS Codebook v1.0";
     private JFrame frame;
     private JTextArea statusLog;
     private String filePath = null;
@@ -55,7 +55,7 @@ public class Main {
         frame = new JFrame(APP_NAME);
         frame.setResizable(false);
         frame.setBounds(100, 100, 450, 380);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
@@ -154,7 +154,7 @@ public class Main {
         statusLog.setText(statusLog.getText() + text + "\n");
     }
 
-    class FileChooser implements ActionListener {
+    private class FileChooser implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
             FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(
@@ -174,7 +174,7 @@ public class Main {
     }
 
     class MyTask extends SwingWorker {
-        private File selected;
+        private final File selected;
 
         public MyTask(File f) {
             super();

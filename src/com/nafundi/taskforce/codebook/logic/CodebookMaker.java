@@ -16,14 +16,17 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * Created by yanokwa on 5/29/13.
+ * Used to generate a Codebook in PDF
+ *
+ * @author Yaw Anokwa (yanokwa@nafundi.com)
  */
+
 public class CodebookMaker extends SwingWorker<Integer, String> {
 
-    private ArrayList<CodebookEntry> codebookEntries;
-    private String locale;
-    private String inputFilename;
-    private String outputFolderPath;
+    private final ArrayList<CodebookEntry> codebookEntries;
+    private final String locale;
+    private final String inputFilename;
+    private final String outputFolderPath;
 
     public CodebookMaker(ArrayList<CodebookEntry> codebookEntries, String locale, String inputFilename, String outputFolderPath) {
         this.codebookEntries = codebookEntries;
@@ -32,7 +35,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
         this.outputFolderPath = outputFolderPath;
     }
 
-    public String getLocale() {
+    String getLocale() {
         return locale;
     }
 
@@ -224,7 +227,11 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             e.printStackTrace();
         }
         Document document = null;
-        document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
+        if (builder != null) {
+            document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
+        } else {
+            errorMsg = "Document builder is null";
+        }
 
         // create render of document
         // ITextRender is not thread-safe
@@ -253,7 +260,9 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
                 e.printStackTrace();
             }
             try {
-                outputStream.close();
+                if (outputStream != null) {
+                    outputStream.close();
+                }
             } catch (IOException e) {
                 errorMsg = e.getMessage();
                 e.printStackTrace();
@@ -266,7 +275,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             return -1;
         }
 
-        publish("Finished making " + getLocale() + " codebook.");
+        publish("Finished making " + getLocale() + " codebook");
         return 0;
     }
 
@@ -280,14 +289,14 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
     private File getFontFile(String fontName) {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         File temporaryFile = new File(tempDir + File.separator + fontName);
-        if(!temporaryFile.exists()) {
-            InputStream templateStream = getClass().getResourceAsStream("/"+fontName);
+        if (!temporaryFile.exists()) {
+            InputStream templateStream = getClass().getResourceAsStream("/" + fontName);
             try {
                 IOUtils.copy(templateStream, new FileOutputStream(temporaryFile));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-       return temporaryFile;
+        return temporaryFile;
     }
 }

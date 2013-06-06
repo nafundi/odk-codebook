@@ -27,9 +27,9 @@ import java.util.Vector;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
-public class PropertyManager implements IPropertyManager {
+class PropertyManager implements IPropertyManager {
 
-    private HashMap<String, String> mProperties;
+    private final HashMap<String, String> mProperties;
 
     public final static String DEVICE_ID_PROPERTY = "deviceid"; // imei
     public final static String SUBSCRIBER_ID_PROPERTY = "subscriberid"; // imsi
@@ -44,10 +44,6 @@ public class PropertyManager implements IPropertyManager {
     public final static String OR_PHONE_NUMBER_PROPERTY = "uri:phonenumber";
     public final static String OR_USERNAME = "uri:username";
     public final static String OR_EMAIL = "uri:email";
-
-    public String getName() {
-        return "Property Manager";
-    }
 
     public PropertyManager(int unused) {
         mProperties = new HashMap<String, String>();
