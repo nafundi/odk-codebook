@@ -2,10 +2,11 @@ package com.nafundi.taskforce.codebook.logic;
 
 import com.googlecode.jatl.Html;
 import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.BaseFont;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextRenderer;
-import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -48,12 +49,13 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             // bootstrap css with only headings, body type, and tables
             // add custom tr.gray tag to fix bug in html to pdf export
             // add custom hidden tag to align labels and values in selects
-
+            // change font family to be Arial Unicode and to include embedding
+            // underline heading
             style().type("text/css").text(".clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:\"\";line-height:0;}\n" +
                     ".clearfix:after{clear:both;}\n" +
                     ".hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}\n" +
                     ".input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-                    "body{margin:0;font-family:\"Helvetica\",Helvetica,Arial,sans-serif;font-size:11px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
+                    "body{margin:0;font-family:\"Arial Unicode MS\";-fs-pdf-font-embed:embed;-fs-pdf-font-encoding: Identity-H;font-size:11px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
                     "a{color:#0088cc;text-decoration:none;}\n" +
                     "a:hover,a:focus{color:#005580;text-decoration:underline;}\n" +
                     ".img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;}\n" +
@@ -116,7 +118,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
                     "address{display:block;margin-bottom:20px;font-style:normal;line-height:20px;}\n" +
                     "table{max-width:100%;background-color:transparent;border-collapse:collapse;border-spacing:0;}\n" +
                     ".table{width:100%;margin-bottom:20px;}.table th,.table td{padding:8px;line-height:20px;text-align:left;vertical-align:top;border-top:1px solid #dddddd;}\n" +
-                    ".table th{font-weight:bold;}\n" +
+                    ".table th{font-weight:bold; font-decoration:underline;}\n" +
                     ".table thead th{vertical-align:bottom;}\n" +
                     ".table caption+thead tr:first-child th,.table caption+thead tr:first-child td,.table colgroup+thead tr:first-child th,.table colgroup+thead tr:first-child td,.table thead:first-child tr:first-child th,.table thead:first-child tr:first-child td{border-top:0;}\n" +
                     ".table tbody+tbody{border-top:2px solid #dddddd;}\n" +
@@ -222,24 +224,20 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
             e.printStackTrace();
         }
         Document document = null;
-//        try {
-            document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
-//        } catch (SAXException e) {
-//            errorMsg = e.getMessage();
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            errorMsg = e.getMessage();
-//            e.printStackTrace();
-//        }
+        document = builder.parse(new ByteArrayInputStream(htmlDocument.getBytes("UTF-8")));
 
         // create render of document
         // ITextRender is not thread-safe
         synchronized (this) {
             ITextRenderer renderer = new ITextRenderer();
+
+            // make sure we can render most unicode characters
+            renderer.getFontResolver().addFont(getFontFile("Arial-Unicode.ttf").getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            renderer.getFontResolver().addFont(getFontFile("Arial-Unicode-Bold.ttf").getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
             renderer.setDocument(document, null);
             renderer.layout();
 
-            // TODO: asian characters are in html but don't show up in pdf
             // write out document as pdf
             OutputStream outputStream = null;
             try {
@@ -276,5 +274,20 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
         publish("Failed to make " + getLocale() + " codebook because " + errorMessage);
     }
 
-
+    // copy the font file to a temp directory
+    // needed because renderer needs a file
+    // but files in a jar are treated like an inputstream
+    private File getFontFile(String fontName) {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File temporaryFile = new File(tempDir + File.separator + fontName);
+        if(!temporaryFile.exists()) {
+            InputStream templateStream = getClass().getResourceAsStream("/"+fontName);
+            try {
+                IOUtils.copy(templateStream, new FileOutputStream(temporaryFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+       return temporaryFile;
+    }
 }

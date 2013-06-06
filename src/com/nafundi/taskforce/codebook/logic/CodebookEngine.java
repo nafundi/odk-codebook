@@ -91,6 +91,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
             entries.put(defaultLanguage, entry);
         }
 
+       publish("");
        return entries;
 
     }
