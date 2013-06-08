@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class Main {
 
-    private static final String APP_NAME = "Task Force LINKS Codebook v1.0";
+    private static final String APP_NAME = "Task Force LINKS Codebook v1.1";
     private JFrame frame;
     private JTextArea statusLog;
     private String filePath = null;
@@ -145,7 +145,7 @@ public class Main {
                 maker.doInBackground();
             }
         } else {
-            appendToStatus("Failed to load form.");
+            appendToStatus("Error: Failed to load form.");
         }
 
     }
@@ -185,7 +185,7 @@ public class Main {
             try {
                 makeCodebook(selected);
             } catch (Exception e) {
-                appendToStatus("Failed to make codebook because " + e.getMessage());
+                appendToStatus("Error: Failed to make codebook because " + e.getMessage() +".");
             }
             return null;
         }

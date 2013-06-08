@@ -3,7 +3,6 @@ package com.nafundi.taskforce.codebook.logic;
 import com.googlecode.jatl.Html;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -58,7 +57,7 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
                     ".clearfix:after{clear:both;}\n" +
                     ".hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}\n" +
                     ".input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-                    "body{margin:0;font-family:\"Arial Unicode MS\";-fs-pdf-font-embed:embed;-fs-pdf-font-encoding: Identity-H;font-size:11px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
+                    "body{margin:0;font-family:\"Arial Unicode MS\",\"Arial Unicode\", Arial, sans-serif;-fs-pdf-font-embed:embed;-fs-pdf-font-encoding: Identity-H;font-size:11px;line-height:20px;color:#333333;background-color:#ffffff;}\n" +
                     "a{color:#0088cc;text-decoration:none;}\n" +
                     "a:hover,a:focus{color:#005580;text-decoration:underline;}\n" +
                     ".img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;}\n" +
@@ -238,10 +237,15 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
         synchronized (this) {
             ITextRenderer renderer = new ITextRenderer();
 
-            // make sure we can render most unicode characters
-            renderer.getFontResolver().addFont(getFontFile("Arial-Unicode.ttf").getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            renderer.getFontResolver().addFont(getFontFile("Arial-Unicode-Bold.ttf").getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-
+            if (isWindows()) {
+                renderer.getFontResolver().addFont("C:\\WINDOWS\\Fonts\\ARIALUNI.TTF", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            } else if (isMac()) {
+                renderer.getFontResolver().addFont("/XLibrary/Fonts/Arial Unicode.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            } else if (isUnix()) {
+                renderer.getFontResolver().addFont("/usr/share/fonts/truetype/ARIALUNI.TTF", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            } else {
+                publish("Warning: No Arial Unicode found. Non-Latin characters may not display properly.");
+            }
             renderer.setDocument(document, null);
             renderer.layout();
 
@@ -280,23 +284,26 @@ public class CodebookMaker extends SwingWorker<Integer, String> {
     }
 
     private void publishError(String errorMessage) {
-        publish("Failed to make " + getLocale() + " codebook because " + errorMessage);
+        publish("Error: Failed to make " + getLocale() + " codebook because " + errorMessage + ".");
     }
 
-    // copy the font file to a temp directory
-    // needed because renderer needs a file
-    // but files in a jar are treated like an inputstream
-    private File getFontFile(String fontName) {
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        File temporaryFile = new File(tempDir + File.separator + fontName);
-        if (!temporaryFile.exists()) {
-            InputStream templateStream = getClass().getResourceAsStream("/" + fontName);
-            try {
-                IOUtils.copy(templateStream, new FileOutputStream(temporaryFile));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return temporaryFile;
+    private String getOS() {
+        return System.getProperty("os.name").toLowerCase();
+    }
+
+    public boolean isWindows() {
+        return (getOS().indexOf("win") >= 0);
+    }
+
+    public boolean isMac() {
+        return (getOS().indexOf("mac") >= 0);
+    }
+
+    public boolean isUnix() {
+        return (getOS().indexOf("nix") >= 0 || getOS().indexOf("nux") >= 0 || getOS().indexOf("aix") > 0);
+    }
+
+    public boolean isSolaris() {
+        return (getOS().indexOf("sunos") >= 0);
     }
 }

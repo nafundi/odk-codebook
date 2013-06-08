@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project default="package" name="taskforce-codebook">
-    <property name="appName" value="LINKS Codebook v1.0" />
+    <property name="appName" value="LINKS Codebook v1.1" />
 
     <target description="set classpath and make needed directories" name="init">
         <path id="classpath">

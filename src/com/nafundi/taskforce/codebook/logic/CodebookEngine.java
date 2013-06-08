@@ -251,7 +251,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
     }
 
     private void publishError(String errorMessage) {
-        publish("Failed to process form because " + errorMessage);
+        publish("Error: Failed to process form because " + errorMessage +".");
     }
 
 
