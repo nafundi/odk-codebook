@@ -30,7 +30,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
     public HashMap<String, ArrayList<CodebookEntry>> doInBackground() {
 
-        publish("\nLoading form...");
+        publish("\nLoading form...\n");
 
         new XFormsModule().registerModule();
         // needed to override rms property manager
@@ -120,7 +120,7 @@ public class CodebookEngine extends SwingWorker<HashMap<String, ArrayList<Codebo
 
                 // add question text
                 String questionText = getLocalizedLabel(qd.getTextID(), qd.getLabelInnerText(), localizer);
-                questions.append(questionText + "<br/>");
+                questions.append(questionText);
 
                 // populate questions and values appropriately
                 switch (qd.getControlType()) {
