@@ -7,13 +7,13 @@ ODK Codebook is a desktop Java application that generates a human-friendly PDF w
    
 ## Setting up your development environment
 
-1. Fork the validate project ([why and how to fork](https://help.github.com/articles/fork-a-repo/))
+1. Fork the odk-codebook project ([why and how to fork](https://help.github.com/articles/fork-a-repo/))
 
 1. Clone your fork of the project locally. At the command line:
 
-        git clone https://github.com/YOUR-GITHUB-USERNAME/validate
+        git clone https://github.com/YOUR-GITHUB-USERNAME/odk-codebook
 
-We recommend using [IntelliJ IDEA](https://www.jetbrains.com/idea/) for development. On the welcome screen, click `Import Project`, navigate to your validate folder, and select the `build.gradle` file. Use the defaults through the wizard. Once the project is imported, IntelliJ may ask you to update your remote maven repositories. Follow the instructions to do so. 
+We recommend using [IntelliJ IDEA](https://www.jetbrains.com/idea/) for development. On the welcome screen, click `Import Project`, navigate to your odk-codebook folder, and select the `build.gradle` file. Use the defaults through the wizard. Once the project is imported, IntelliJ may ask you to update your remote maven repositories. Follow the instructions to do so. 
 
 The main class is `com.nafundi.opendatakit.codebook.ui.Main`.
  
