@@ -12,12 +12,13 @@
  * the License.
  */
 
-package com.nafundi.taskforce.codebook.ui;
+package com.nafundi.opendatakit.codebook.ui;
 
 import com.apple.eawt.Application;
-import com.nafundi.taskforce.codebook.logic.CodebookEngine;
-import com.nafundi.taskforce.codebook.logic.CodebookEntry;
-import com.nafundi.taskforce.codebook.logic.CodebookMaker;
+import com.nafundi.opendatakit.codebook.logic.CodebookEngine;
+import com.nafundi.opendatakit.codebook.logic.CodebookEntry;
+import com.nafundi.opendatakit.codebook.logic.CodebookMaker;
+import com.nafundi.opendatakit.codebook.buildconfig.BuildConfig;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 public class Main {
 
-    private static final String APP_NAME = "Task Force LINKS Codebook v1.1";
+    private static final String APP_NAME = BuildConfig.NAME + " " + BuildConfig.VERSION;
     private JFrame frame;
     private JTextArea statusLog;
     private String filePath = null;
@@ -73,8 +74,8 @@ public class Main {
                 new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.setLocationRelativeTo(null);
 
-        ImageIcon mainLogo = new javax.swing.ImageIcon(getClass().getResource("/taskforce-main-logo.png"));
-        Image appLogo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/taskforce-app-logo.png"));
+        ImageIcon mainLogo = new javax.swing.ImageIcon(getClass().getResource("/main-logo.png"));
+        Image appLogo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/app-logo.png"));
 
         if (System.getProperty("os.name").toUpperCase().contains("MAC")) {
             Application app = Application.getApplication();

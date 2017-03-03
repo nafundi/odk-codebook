@@ -1,0 +1,7 @@
+compile:
+  override:
+    - ./gradlew jar
+
+test:
+  post:
+    - cp -r build/libs $CIRCLE_ARTIFACTS

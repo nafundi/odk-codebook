@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.nafundi.taskforce.codebook.logic;
+package com.nafundi.opendatakit.codebook.logic;
 
 import com.googlecode.jatl.Html;
 import com.lowagie.text.DocumentException;

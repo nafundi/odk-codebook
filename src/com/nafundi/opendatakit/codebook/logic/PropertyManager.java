@@ -12,19 +12,20 @@
  * the License.
  */
 
-package com.nafundi.taskforce.codebook.logic;
+package com.nafundi.opendatakit.codebook.logic;
 
 import org.javarosa.core.services.IPropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
 /**
  * Used to return device properties to JavaRosa
- * 
- * @author Yaw Anokwa (yanokwa@gmail.com)
+ *
+ * @author Yaw Anokwa (yanokwa@nafundi.com)
  */
 
 class PropertyManager implements IPropertyManager {
@@ -83,9 +84,7 @@ class PropertyManager implements IPropertyManager {
     }
 
     @Override
-    public void setProperty(String propertyName, @SuppressWarnings("rawtypes")
-    Vector propertyValue) {
-
+    public void setProperty(String propertyName, List<String> propertyValue) {
     }
 
     @Override
