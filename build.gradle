@@ -1,0 +1,84 @@
+plugins {
+    id 'application'
+    id 'de.fuerstenau.buildconfig' version '1.1.8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets.main.java.srcDirs = ['src']
+sourceSets.main.resources.srcDirs = ['res']
+
+dependencies {
+    compile group: 'org.xhtmlrenderer', name: 'core-renderer', version: 'R8'
+    compile group: 'com.lowagie', name: 'itext', version: '2.0.8'
+    compile group: 'com.googlecode.jatl', name: 'jatl', version: '0.2.2'
+    compile group: 'net.sf.jtidy', name: 'jtidy', version: 'r938'
+    runtime group: 'net.sf.kxml', name: 'kxml2', version: '2.3.0'
+    compile files('lib/javarosa-libraries-2016-04-21.jar')
+}
+
+// needed for macos support
+// http://stackoverflow.com/a/33868984
+compileJava {
+    options.compilerArgs << "-XDignore.symbol.file=true"
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+
+ant.condition(property: "os", value: "windows") { os(family: "windows") }
+ant.condition(property: "os", value: "unix" ) { os(family: "unix") }
+
+// Use the result of git describe --tags --dirty as the version name
+// From http://stackoverflow.com/questions/17097263#24121734
+def getVersionName = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            switch(ant.properties.os){
+                case 'windows':
+                    commandLine 'cmd', '/c', 'git', 'describe', '--tags', '--dirty', '--always'
+                    break
+                case 'unix':
+                    commandLine 'git', 'describe', '--tags', '--dirty', '--always'
+                    break
+            }
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return null;
+    }
+}
+
+buildConfig {
+    appName = 'ODK Codebook by Nafundi'
+    version = getVersionName()
+    clsName = 'BuildConfig'
+    packageName = 'com.nafundi.opendatakit.codebook.buildconfig'
+}
+
+mainClassName = 'com.nafundi.opendatakit.codebook.ui.Main'
+
+jar {
+
+    baseName = 'ODK Codebook'
+    version = buildConfig.version
+    archiveName = baseName + ' ' + version + '.jar'
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+
+    // Some of the dependencies are signed jars. When combined into a big jar, the corresponding signature files
+    // don't match with big jar, so the runtime refuses to run the jar. The fix is to exclude the signature files.
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
