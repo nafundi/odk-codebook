@@ -14,7 +14,7 @@
 
 package com.nafundi.opendatakit.codebook.ui;
 
-import com.apple.eawt.Application;
+//import com.apple.eawt.Application;
 import com.nafundi.opendatakit.codebook.logic.CodebookEngine;
 import com.nafundi.opendatakit.codebook.logic.CodebookEntry;
 import com.nafundi.opendatakit.codebook.logic.CodebookMaker;
@@ -77,10 +77,10 @@ public class Main {
         ImageIcon mainLogo = new javax.swing.ImageIcon(getClass().getResource("/main-logo.png"));
         Image appLogo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/app-logo.png"));
 
-        if (System.getProperty("os.name").toUpperCase().contains("MAC")) {
-            Application app = Application.getApplication();
-            app.setDockIconImage(appLogo);
-        }
+//        if (System.getProperty("os.name").toUpperCase().contains("MAC")) {
+//            Application app = Application.getApplication();
+//            app.setDockIconImage(appLogo);
+//        }
 
         JPanel panel = new JPanel();
         panel.setLayout(null);
